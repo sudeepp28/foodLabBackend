@@ -84,6 +84,26 @@ router.delete('/profile/:id',async(req,resp)=>{
     resp.status(500).json({ error: 'Failed to delete profile image' });
    }
 })
+router.post('/update',async(req,res)=>{
+  const {userId,name,email,dob,gender}=req.body
+  try{
+    const profileData={
+      name,email,dob,gender
+    }
+    const user={
+      name,email
+    }
+    const db=await dbConnection();
+    const Pcollection=db.collection('profiles')
+    const Ucollection=db.collection('users')
+    let presult=await Pcollection.updateOne({userId:userId},{$set:profileData})
+    let uresult=await Ucollection.updateOne({_id: new ObjectId(userId)},{$set:user})
+    res.send(presult,uresult)
+  }
+  catch(err){
+    res.send({err:"nothing updated"})
+  }
+})
 
 module.exports=router
 
