@@ -140,8 +140,9 @@ router.post('/update/dob',async(req,res)=>{
    return res.status(400).json({ error: 'no D.O.B' });
   }
   try{
+    const reversedDob=dob.split('-').reverse().join('-')
     const dobData={
-      dob
+      dob:reversedDob
     }
    
     const db=await dbConnection();
