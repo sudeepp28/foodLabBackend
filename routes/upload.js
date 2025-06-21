@@ -84,27 +84,96 @@ router.delete('/profile/:id',async(req,resp)=>{
     resp.status(500).json({ error: 'Failed to delete profile image' });
    }
 })
-router.post('/update',async(req,res)=>{
-  const {userId,name,email,dob,gender}=req.body
+
+router.post('/update/email',async(req,res)=>{
+  const {userId,email}=req.body
+
+  if(!req.body.email){
+   return res.status(400).json({ error: 'no email' });
+  }
   try{
-    const profileData={
-      name,email,dob,gender
+    const EmailData={
+      email
     }
     const user={
-      name,email
+      email
     }
     const db=await dbConnection();
     const Pcollection=db.collection('profiles')
     const Ucollection=db.collection('users')
-    let presult=await Pcollection.updateOne({userId:userId},{$set:profileData})
+    let presult=await Pcollection.updateOne({userId:userId},{$set:EmailData})
     let uresult=await Ucollection.updateOne({_id: new ObjectId(userId)},{$set:user})
     res.send(presult,uresult)
   }
   catch(err){
     res.send({err:"nothing updated"})
   }
-})
+});
+router.post('/update/name',async(req,res)=>{
+  const {userId,name}=req.body
+   if(!req.body.name){
+   return res.status(400).json({ error: 'no name' });
+  }
+  try{
+    const nameData={
+      name
+    }
+    const user={
+      name
+    }
+    const db=await dbConnection();
+    const Pcollection=db.collection('profiles')
+    const Ucollection=db.collection('users')
+    let presult=await Pcollection.updateOne({userId:userId},{$set:nameData})
+    let uresult=await Ucollection.updateOne({_id: new ObjectId(userId)},{$set:user})
+    res.send(presult,uresult)
+  }
+  catch(err){
+    res.send({err:"nothing updated"})
+  }
+});
 
+router.post('/update/dob',async(req,res)=>{
+  const {userId,dob}=req.body
+
+   if(!req.body.dob){
+   return res.status(400).json({ error: 'no D.O.B' });
+  }
+  try{
+    const dobData={
+      dob
+    }
+   
+    const db=await dbConnection();
+    const Pcollection=db.collection('profiles')
+   
+    let presult=await Pcollection.updateOne({userId:userId},{$set:dobData})
+  
+    res.send(presult)
+  }
+  catch(err){
+    res.send({err:"nothing updated"})
+  }
+});
+router.post('/update/gender',async(req,res)=>{
+  const {userId,gender}=req.body
+   if(!req.body.gender){
+   return res.status(400).json({ error: 'no gender' });
+  }
+  try{
+    const genderData={
+      gender
+    }
+   
+    const db=await dbConnection();
+    const Pcollection=db.collection('profiles')
+    let presult=await Pcollection.updateOne({userId:userId},{$set:genderData})
+    res.send(presult,uresult)
+  }
+  catch(err){
+    res.send({err:"nothing updated"})
+  }
+});
 module.exports=router
 
 
