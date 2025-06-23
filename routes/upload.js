@@ -15,7 +15,7 @@ cloudinary.config({
 
 // Upload image route
 router.post('/upload', async (req, res) => {
-  const {userId,name,email}=req.body
+  const {userId}=req.body
   try {
     console.log("req.file=", req.files)
     if (!req.files || !req.files.image) {
@@ -31,19 +31,15 @@ router.post('/upload', async (req, res) => {
 
     const profiledata={
   
-      name,
-      email,
+     
       url:result.secure_url
     }
-    const userDataObject={
-      name,
-      email
-    }
+   
     const db=await dbConnection();
     const collection= db.collection('profiles');
-    const userCollection=db.collection('users')
+   
     let data=await collection.updateOne({userId:userId},{$set:profiledata})
-    let userData=await userCollection.updateOne({_id:new ObjectId(userId)},{$set:userDataObject})
+   
     res.status(200).json({
       message: 'Image uploaded successfully',
       url: result.secure_url,
