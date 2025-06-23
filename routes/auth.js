@@ -1,7 +1,7 @@
 const express=require('express');
 const dbConnection = require('../mongoDb');
 const router=express.Router();
-
+const { ObjectId } = require('mongodb');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -42,5 +42,39 @@ router.post('/login',async (req,resp)=>{
   const token = jwt.sign({ userId: user._id }, 'yourSecretKey', { expiresIn: '1h' });
 
   resp.send({ token, user});
-})
+});
+
+router.post('/change-password', async (req, res) => {
+  const { userId, oldPassword, newPassword } = req.body;
+
+  try {
+    if (!userId || !oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    console.log('🔐 Change password request for userId:', userId);
+    const db = await dbConnection();
+    const collection = db.collection("users");
+
+    const user = await collection.findOne({ _id: new ObjectId(userId) });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match) return res.status(400).json({ message: 'Old password is incorrect' });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await collection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { password: hashedPassword } }
+    );
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error('❌ Change password error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 module.exports=router
