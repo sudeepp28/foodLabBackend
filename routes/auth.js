@@ -75,6 +75,54 @@ router.post('/change-password', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+router.post('/check-user', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const db = await dbConnection();
+    const uCollection = db.collection('users');
+    const user = await uCollection.findOne({ email }); 
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    res.send(user); 
+  } catch (err) {
+    console.error(err); 
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.post('/delete-user', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const db = await dbConnection();
+    const uCollection = db.collection('users');
+    const pCollection = db.collection('profiles');
+    const oCollection=db.collection('orders');
+    const savedCollection=db.collection('saved restaurants')
+
+    const user = await uCollection.findOne({ email }); 
+    if (!user) {
+      return res.status(400).send({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
+    await uCollection.deleteOne({ email });
+    await pCollection.deleteOne({ userId: user._id.toString() });
+    await oCollection.deleteMany({userId:user._id.toString()});
+    await savedCollection.deleteMany({userId:user._id.toString()});
+    res.json({ message: "User deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 module.exports=router
