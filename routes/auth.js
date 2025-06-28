@@ -81,15 +81,15 @@ router.post('/check-user', async (req, res) => {
   try {
     const db = await dbConnection();
     const uCollection = db.collection('users');
-    const user = await uCollection.findOne({ email }); 
+    const user = await uCollection.findOne({ email }); // ✅ add await here
 
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    res.send(user); 
+    res.send(user); // optionally exclude password field
   } catch (err) {
-    console.error(err); 
+    console.error(err); // always good for debugging
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -104,12 +104,12 @@ router.post('/delete-user', async (req, res) => {
     const oCollection=db.collection('orders');
     const savedCollection=db.collection('saved restaurants')
 
-    const user = await uCollection.findOne({ email }); 
+    const user = await uCollection.findOne({ email }); // ✅ add await here
     if (!user) {
       return res.status(400).send({ message: "User not found" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password); // ✅ compare hashed password
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid password' });
     }
@@ -119,7 +119,7 @@ router.post('/delete-user', async (req, res) => {
     await savedCollection.deleteMany({userId:user._id.toString()});
     res.json({ message: "User deleted" });
   } catch (err) {
-    console.error(err);
+    console.error(err); // always log server errors
     res.status(500).json({ message: "Server error" });
   }
 });

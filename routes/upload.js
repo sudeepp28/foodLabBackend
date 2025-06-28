@@ -3,6 +3,7 @@ const express=require('express');
 const dbConnection = require('../mongoDb');
 const router=express.Router();
 
+const nodemailer = require('nodemailer');
 const cloudinary=require('cloudinary').v2
 const { ObjectId } = require('mongodb');
 
@@ -169,6 +170,40 @@ router.post('/update/gender',async(req,res)=>{
   }
   catch(err){
     res.send({err:"nothing updated"})
+  }
+});
+
+router.post('/feedback', async (req, res) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    // ✅ Setup transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // You can also use Outlook, Yahoo, etc.
+      auth: {
+        user: 'sudeepsudeep799@gmail.com',     // your email
+        pass: 'ynlt zspe aplm jyyt',       // Gmail App Password, not your real password
+      },
+    });
+
+    // ✅ Compose mail
+    const mailOptions = {
+      from: email,
+      to: 'sudeepsudeep799@gmail.com',         // where you want to receive the feedback
+      subject: `FoodLab Feedback from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    };
+
+    // ✅ Send mail
+    await transporter.sendMail(mailOptions);
+    res.json({ message: 'Feedback sent successfully' });
+  } catch (err) {
+    console.error('Error sending feedback email:', err);
+    res.status(500).json({ message: 'Failed to send feedback' });
   }
 });
 module.exports=router

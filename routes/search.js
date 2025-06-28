@@ -9,9 +9,13 @@ router.get('/', async (req, resp) => {
   const collection = db.collection('restaurants');
   const query = req.query.q?.trim();
 
+  console.log(query)
+
   if (!query) {
     return resp.send({ result: [] });
   }
+
+
 
   const data = await collection.find().toArray();
 
