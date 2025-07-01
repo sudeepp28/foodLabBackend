@@ -16,7 +16,9 @@ const {items,total,placeAt,bill}=req.body
   let db=await dbConnection()
   let collection=db.collection('orders');
   let result= await collection.insertOne({userId:req.userId,
-    items,total,placeAt,bill
+    items,total,
+    placeAt:placeAt || new Date().toISOString()
+    ,bill
   })
   resp.send(result)
 })
