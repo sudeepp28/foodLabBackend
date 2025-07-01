@@ -11,12 +11,12 @@ router.get('/', async(req,resp)=>{
 })
 
 router.post('/',async(req,resp)=>{
-const {items,total,placeAt}=req.body
+const {items,total,placeAt,bill}=req.body
 
   let db=await dbConnection()
   let collection=db.collection('orders');
   let result= await collection.insertOne({userId:req.userId,
-    items,total,placeAt
+    items,total,placeAt,bill
   })
   resp.send(result)
 })
