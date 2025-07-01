@@ -22,5 +22,13 @@ const {items,total,placeAt,bill}=req.body
   })
   resp.send(result)
 })
+router.delete('/delete/:id', async(req,res)=>{
+  
+  let db=await dbConnection();
+  let collection=db.collection('orders');
+  let result=await collection.deleteOne({_id:new ObjectId(req.params.id)})
+  res.send(result);
+  
+})
 
 module.exports=router
