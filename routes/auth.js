@@ -124,5 +124,13 @@ router.post('/delete-user', async (req, res) => {
   }
 });
 
+router.delete('/orders/delete/:id', async(req,res)=>{
+  
+  let db=await dbConnection();
+  let collection=db.collection('orders');
+  let result=await collection.deleteOne({_id:new ObjectId(req.params.id)})
+  res.send(result);
+  
+})
 
 module.exports=router
